@@ -149,14 +149,14 @@ body {
 /* Sidebar Menu */
 .sidebar-menu {
     list-style: none;
-    padding: 15px 8px;
+    padding: 0 4px; /* remove extra horizontal padding */
     margin: 0;
     display: flex;
     flex-direction: column;
 }
 
 .sidebar-menu li {
-    margin-bottom: 8px;
+    margin: 2px 0; /* tighter vertical spacing */
     border: 2px solid rgba(255,255,255,0.2);
     border-radius: 6px;
     background: rgba(255,255,255,0.05);
@@ -1344,6 +1344,16 @@ body {
     }
 }
 
+/* animation used for mobile sidebar sliding */
+@keyframes slideIn {
+    from { transform: translateX(-100%); }
+    to   { transform: translateX(0); }
+}
+@keyframes slideOut {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-100%); }
+}
+
 @media (max-width: 992px) {
     /* Show hamburger */
     .hamburger {
@@ -1355,19 +1365,42 @@ body {
     }
     .sidebar {
         position: fixed;
-        top: 0;
+        /* slide down under header instead of covering it */
+        top: 120px; /* match container margin-top / header height */
         left: -100%; /* keep sidebar left side */
         right: auto;
         width: 280px;
-        height: 100vh;
-        background: linear-gradient(135deg, #010b3a 0%, #764ba2 100%);
-        transition: left 0.3s ease;
+        /* only as tall as contents, but no more than viewport */
+        height: auto;
+        max-height: calc(90vh - 120px); /* allow remaining viewport below header */
+        overflow-y: auto;
+        /* use same gradient background as desktop but slightly transparent */
+        background: linear-gradient(135deg, rgba(51, 62, 110, 0.779) 0%, rgba(82, 53, 112, 0.703) 100%);
+        /* a bit of blur can soften colours if needed */
+        backdrop-filter: blur(4px);
+        transition: background 0.3s ease, transform 0.3s ease;
+        transform: translateX(-100%);
         z-index: 2500;
-        padding-top: 80px; /* avoid header overlap */
+        padding-top: 60px; /* reduced space at top */
+        padding-bottom: 0; /* remove bottom space */
         box-shadow: 2px 0 20px rgba(0,0,0,0.3);
     }
     .sidebar.open {
         left: 0;
+        transform: translateX(0);
+        animation: slideIn 0.3s forwards;
+        /* when opening, recalc max-height in case content changed */
+    }
+    .sidebar.closing {
+        animation: slideOut 0.3s forwards;
+    }
+    /* reset menu item backgrounds to match desktop styling */
+    .sidebar-menu li {
+        background: rgba(255,255,255,0.05);
+    }
+    .sidebar-menu li a {
+        background: transparent;
+        border-radius: 4px;
     }
     .main-content {
         margin-left: 0;
@@ -1549,3 +1582,5 @@ body {
     from { opacity: 0; }
     to { opacity: 1; }
 }
+/* mobile sidebar – no empty space above/below the items */
+
